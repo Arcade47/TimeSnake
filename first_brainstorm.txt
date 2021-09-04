@@ -1,0 +1,52 @@
+A) snake in 3 dimensions
+	benefits:
+		- no ground
+		- easy orthogonality (not moving in time)
+		- no time passes automatically, but can only see 2 dimensions
+
+B) few generations of persons
+	can only move in 2D (space dimensions)
+	generations: "stone age", "middle age", "future age" (maybe with time travellers)
+
+C) display of snake length
+	can be shortened via:
+		eating its own tial somewhere
+		hit by humans' weapons
+	can be elongated via:
+		eating humans
+
+D) highscore system
+	yoink from Beste game
+
+E) interaction of time dim with humans?
+	- option 1: moving in space, ignoring time
+		humans are stationary; easy
+		disabling this option? only difficulty would be not hitting oneself
+	- option 2: moving in spacedim1 and time, ignoring spacedim2
+		forward in time:
+			humans can react
+		backwards in time:
+			stored behavior is read out, future is cleared			
+	- how would it look for humans?
+
+F) AI?
+
+G) music that flows with current time movement
+
+H) computational optimization
+	only AA lines of snake
+		--> just store corner points
+	store people's actions as vectors
+	clear dir change history when beyond snake length
+
+I) language and setup
+	JS on own webserver
+	no scrolling, fixed block size (200 x 200)
+	smartphone implementation only if there is time left
+
+J) items
+	dimension changing items are constantly visible across auto dim ("pillar")
+
+K) snake dynamics
+	if no movement: still movement in time
+		need 3D view to see updates

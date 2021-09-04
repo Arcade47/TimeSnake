@@ -1,0 +1,10 @@
+should time flow for snake as well?
++ easier for "humans", since
+	a) there is some continuousness
+	b) snake cannot be everywhere at once in present
+- results in diagonal movements in grid
+	however, if only points are stored, this shouldn't be a big problem
+
+ONLY move in time (left/right?)
+	NO:
+		would need to be stationary, humans would win at some point or no dof

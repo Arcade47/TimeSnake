@@ -1,0 +1,5 @@
+square canvas top centered
+auto scale to fit smaller dimension
+control panels left right
+
+pop-up asking for fullscreen
