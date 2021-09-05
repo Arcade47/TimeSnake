@@ -62,15 +62,17 @@ class PosView3D {
         this.y = 0;
         this.z = dist;
         this.points_3D = [
-            [this.x - this.size, this.y - this.size, this.z - this.size],
-            [this.x + this.size, this.y - this.size, this.z - this.size],
-            [this.x + this.size, this.y + this.size, this.z - this.size],
-            [this.x - this.size, this.y + this.size, this.z - this.size],
-            [this.x - this.size, this.y - this.size, this.z + this.size],
-            [this.x + this.size, this.y - this.size, this.z + this.size],
-            [this.x + this.size, this.y + this.size, this.z + this.size],
-            [this.x - this.size, this.y + this.size, this.z + this.size]
+            [-this.size, -this.size, this.z - this.size],
+            [ this.size, -this.size, this.z - this.size],
+            [ this.size,  this.size, this.z - this.size],
+            [-this.size,  this.size, this.z - this.size],
+            [-this.size, -this.size, this.z + this.size],
+            [ this.size, -this.size, this.z + this.size],
+            [ this.size,  this.size, this.z + this.size],
+            [-this.size,  this.size, this.z + this.size]
         ];
+        this.snake_points_3D = []; // filled in update function
+        this.snake_points_2D = []; // filled in update function
         this.faces = [
             [0, 1, 2, 3], 
             [0, 4, 5, 1], 
@@ -79,13 +81,16 @@ class PosView3D {
             [0, 3, 7, 4], 
             [4, 7, 6, 5]
         ];
-        this.proj_2D_points = this.get_projected_2D();
+        var proj_2D_points = this.get_projected_2D();
+        this.proj_2D_points         = proj_2D_points[0];
+        this.proj_2D_snake_points   = proj_2D_points[1];
         this.current_rad = 0;
         this.translate = translate;
     }
     get_projected_2D() {
 
         var points_2D = [];
+        var snake_points_2D = [];
 
         for (let i = 0; i < this.points_3D.length; i++) {
             let v = this.points_3D[i];
@@ -95,9 +100,18 @@ class PosView3D {
             points_2D.push({cx: x, cy: y});
         }
 
-        return points_2D;
+        for (let i = 0; i < this.snake_points_3D.length; i++) {
+            let v = this.snake_points_3D[i];
+            let x = v[0]*(this.focal_len/v[2]);
+            let y = v[1]*(this.focal_len/v[2]);
+
+            snake_points_2D.push({cx: x, cy: y});
+        }
+
+        return [points_2D, snake_points_2D];
 
     }
+    // rotateX not really needed (old version)
     rotateX(rad) {
         // this.current_rad = (this.current_rad + rad)%(2*Math.PI);
         var cos = Math.cos(rad);
@@ -111,34 +125,69 @@ class PosView3D {
         }
     }
     rotateY(rad) {
+        // TODO figure out why this addition necessary (shouldn't work)
         this.current_rad = (this.current_rad + rad)%(2*Math.PI);
         var cos = Math.cos(this.current_rad);
         var sin = Math.sin(this.current_rad);
         for (let i = 0; i < this.points_3D.length; i++) {
             let v = this.points_3D[i];
-            let x = (v[2] - this.z)*sin - (v[0] - this.x)*cos;
-            let z = (v[2] - this.z)*cos + (v[0] - this.x)*sin;
-            this.points_3D[i][0] = x + this.x;
+            let x = (v[2] - this.z)*sin - v[0]*cos;
+            let z = (v[2] - this.z)*cos + v[0]*sin;
+            this.points_3D[i][0] = x;
             this.points_3D[i][2] = z + this.z;
         }
-    }
-    rotateZ(rad) {
-        // this.current_rad = (this.current_rad + rad)%(2*Math.PI);
-        var cos = Math.cos(rad);
-        var sin = Math.sin(rad);
-        for (let i = 0; i < this.points_3D.length; i++) {
-            let v = this.points_3D[i];
-            let x = (v[2] - this.z)*sin - (v[0] - this.x)*cos;
-            let y = (v[1] - this.y)*cos - (v[2] - this.z)*sin;
-            this.points_3D[i][0] = x + this.x;
-            this.points_3D[i][1] = y + this.y;
+        for (let i = 0; i < this.snake_points_3D.length; i++) {
+            let v = this.snake_points_3D[i];
+            let x = (v[2] - this.z)*sin - v[0]*cos;
+            let z = (v[2] - this.z)*cos + v[0]*sin;
+            this.snake_points_3D[i][0] = x;
+            this.snake_points_3D[i][2] = z + this.z;
         }
     }
-    update() {
-        this.proj_2D_points = this.get_projected_2D();
+    get_converted_snake_coords(coords) {
+        var cube_coords = [];
+        for (let i = 0; i < coords.length; i++) {
+            // coords format: 0 to grid_len-1
+            // needed format: -this.size to this.size
+            let x = ((coords[i].x/grid_len)*2*this.size) - this.size;
+            let y = ((coords[i].y/grid_len)*2*this.size) - this.size;
+            let z = ((coords[i].t/grid_len)*2*this.size) - this.size;
+            cube_coords.push([x, y, z]);
+        }
+        return cube_coords;
+    }
+    update(snake) {
+
+        this.rotateY(0.005);
+
+        // TODO clamp to relevant points only (maybe in snake class)
+        // TODO reduce to current snake size
+        // TODO draw line between points
+        this.snake_points_3D = this.get_converted_snake_coords(snake.history);
+
+        var proj_2D_points = this.get_projected_2D();
+        this.proj_2D_points =       proj_2D_points[0];
+        this.proj_2D_snake_points = proj_2D_points[1];
+        console.log(this.proj_2D_snake_points[this.proj_2D_snake_points.length-1]); 
     }
     render() {
 
+        // draw the snake points
+        ctx.beginPath();
+        ctx.moveTo(
+            cs*(this.proj_2D_snake_points[0].cx + this.translate.x), 
+            cs*(this.proj_2D_snake_points[0].cy + this.translate.y)
+            );  
+        for (let i = 1; i < this.proj_2D_snake_points.length; i++) {
+            ctx.lineTo(
+                cs*(this.proj_2D_snake_points[i].cx + this.translate.x), 
+                cs*(this.proj_2D_snake_points[i].cy + this.translate.y)
+                );    
+        }
+        ctx.strokeStyle = "black";
+        ctx.stroke();
+
+        // draw the cube
         // kinda copied from https://github.com/pothonprogramming/pothonprogramming.github.io/blob/master/content/cube/cube.html
         for (let index = 0; index < this.faces.length; index++) {
 

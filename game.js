@@ -16,7 +16,7 @@ function event_loop() {
     endDate = Date.now();
     elapsed = endDate - startDate;
 
-    cube.update();
+    cube.update(snake);
 
     // limit movement to fps
     if (elapsed > (1000/fps)) {
@@ -28,7 +28,6 @@ function event_loop() {
         // debug
         // console.log(snake.history)
     }
-    cube.rotateY(0.005);
     // draw functions
     render_all();
     
