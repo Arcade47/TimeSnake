@@ -89,7 +89,10 @@ class PosView3D {
         this.current_rad = 0;
         this.translate = translate;
         // debug
-        this.debug_line = [[0,0,0],[grid_len,grid_len,grid_len]];
+        this.debug_line = [
+            {x: 0, y: 0, t: 0},
+            {x: grid_len, y: grid_len, t: grid_len},
+        ];
     }
     get_projected_2D() {
 
@@ -161,7 +164,7 @@ class PosView3D {
             // needed format: -this.size to this.size
             let x = ((coords[i].x/grid_len)*2*this.size) - this.size;
             let y = ((coords[i].y/grid_len)*2*this.size) - this.size;
-            let z = ((coords[i].t/grid_len)*2*this.size) - this.size;
+            let z = ((coords[i].t/grid_len)*2*this.size) - this.size + this.z;
             cube_coords.push([x, y, z]);
         }
         return cube_coords;
@@ -174,7 +177,7 @@ class PosView3D {
         // TODO clamp to relevant points only (maybe in snake class)
         // TODO reduce to current snake size
         // TODO draw line between points
-        this.snake_points_3D = this.get_converted_snake_coords(snake.history);
+        this.snake_points_3D = this.get_converted_snake_coords(this.debug_line);
 
         this.rotateY(0.005);
 
