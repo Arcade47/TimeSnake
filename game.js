@@ -12,7 +12,7 @@ var cube = new PosView3D({x: 50, y: 50}, 20, 1, 200);
 function event_loop() {
 
     // keep animation going
-    window.requestAnimationFrame(event_loop);
+    // window.requestAnimationFrame(event_loop);
 
     endDate = Date.now();
     elapsed = endDate - startDate;
@@ -21,10 +21,10 @@ function event_loop() {
 
     // limit movement to fps
     if (elapsed > (1000/fps)) {
+        // step forward auto dim (wrapping around in snake update)
+        auto_dim_ind = (auto_dim_ind + 1)%grid_len;
         //update objects
         snake.update();
-        // step forward auto dim
-        if (auto_dim_ind < grid_len-1) auto_dim_ind++; // TODO when change direction in auto dim?
         startDate = Date.now();
         // debug
         // console.log(snake.history)

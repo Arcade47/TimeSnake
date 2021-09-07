@@ -1,7 +1,7 @@
 // user parameters
 
 const grid_len = 100; // 60*60 = 3600 cells (positions on screen)
-const fps = 5;
+const fps = 20;
 
 // global utility constants
 
@@ -20,7 +20,7 @@ var auto_dim_dir = 1; // 1: forward; -1: backwards
 function snake_dir_update(d1=0, d2=0) {
     snake.vel.d1 = d1;
     snake.vel.d2 = d2;
-    // console.log([snake.pos_3D.x, snake.pos_3D.y, snake.pos_3D.t]); // debug
+    // set snake history so that current position is updated every movement frame
     snake.history.push({
         x: snake.pos_3D.x,
         y: snake.pos_3D.y,
