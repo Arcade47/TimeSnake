@@ -4,7 +4,8 @@ document.addEventListener('keydown', keydown);
 
 // init objects
 var snake = new Snake();
-var cube = new PosView3D({x: 90, y: 90}, 20, 1, 200);
+var cube = new PosView3D({x: 10, y: 50}, 20, 1, 200);
+// var cube = new PosView3D({x: 90, y: 90}, 20, 1, 200);
 
 // event loop
 

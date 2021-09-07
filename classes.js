@@ -61,7 +61,8 @@ class PosView3D {
         this.x = 0;
         this.y = 0;
         this.z = dist;
-        this.points_3D = [
+        // store initial points as untransformed version (not rotated etc.)
+        this.points_3D_init = [
             [-this.size, -this.size, this.z - this.size],
             [ this.size, -this.size, this.z - this.size],
             [ this.size,  this.size, this.z - this.size],
@@ -71,6 +72,7 @@ class PosView3D {
             [ this.size,  this.size, this.z + this.size],
             [-this.size,  this.size, this.z + this.size]
         ];
+        this.points_3D = []; // filled in update function
         this.snake_points_3D = []; // filled in update function
         this.snake_points_2D = []; // filled in update function
         this.faces = [
@@ -86,6 +88,8 @@ class PosView3D {
         this.proj_2D_snake_points   = proj_2D_points[1];
         this.current_rad = 0;
         this.translate = translate;
+        // debug
+        this.debug_line = [[0,0,0],[grid_len,grid_len,grid_len]];
     }
     get_projected_2D() {
 
@@ -125,22 +129,28 @@ class PosView3D {
         }
     }
     rotateY(rad) {
+
         // TODO figure out why this addition necessary (shouldn't work)
         this.current_rad = (this.current_rad + rad)%(2*Math.PI);
         var cos = Math.cos(this.current_rad);
         var sin = Math.sin(this.current_rad);
-        for (let i = 0; i < this.points_3D.length; i++) {
-            let v = this.points_3D[i];
+
+        // for the cube
+        this.points_3D = []; // start as empty, will be filled below
+        for (let i = 0; i < this.points_3D_init.length; i++) {
+            let v = this.points_3D_init[i];
             let x = (v[2] - this.z)*sin - v[0]*cos;
             let z = (v[2] - this.z)*cos + v[0]*sin;
-            this.points_3D[i][0] = x;
-            this.points_3D[i][2] = z + this.z;
+            this.points_3D.push([x + this.x, v[1], z + this.z]);
         }
+
+        // for the snake
+        // no need to start empty, is read out from snake with absolute coords every frame
         for (let i = 0; i < this.snake_points_3D.length; i++) {
             let v = this.snake_points_3D[i];
             let x = (v[2] - this.z)*sin - v[0]*cos;
             let z = (v[2] - this.z)*cos + v[0]*sin;
-            this.snake_points_3D[i][0] = x;
+            this.snake_points_3D[i][0] = x + this.x;
             this.snake_points_3D[i][2] = z + this.z;
         }
     }
@@ -158,17 +168,21 @@ class PosView3D {
     }
     update(snake) {
 
-        this.rotateY(0.005);
+        // this.rotateX(0.005); // debug
+        
 
         // TODO clamp to relevant points only (maybe in snake class)
         // TODO reduce to current snake size
         // TODO draw line between points
         this.snake_points_3D = this.get_converted_snake_coords(snake.history);
 
+        this.rotateY(0.005);
+
         var proj_2D_points = this.get_projected_2D();
         this.proj_2D_points =       proj_2D_points[0];
         this.proj_2D_snake_points = proj_2D_points[1];
-        console.log(this.proj_2D_snake_points[this.proj_2D_snake_points.length-1]); 
+        // debug
+        // console.log(this.proj_2D_snake_points[this.proj_2D_snake_points.length-1]); 
     }
     render() {
 
